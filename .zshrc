@@ -1,6 +1,4 @@
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-#source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-#source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
 
 #color{{{
 autoload colors && colors
@@ -14,16 +12,16 @@ alias grep='grep --color=auto'
 alias yay='paru'
 
 #终端代理
-function proxy_on() {
-    export http_proxy=http://127.0.0.1:7890
-    export https_proxy=$http_proxy
-    echo -e "终端代理已开启。"
-}
+#function proxy_on() {
+#    export http_proxy=http://127.0.0.1:7890
+#    export https_proxy=$http_proxy
+#    echo -e "终端代理已开启。"
+#}
 
-function proxy_off(){
-    unset http_proxy https_proxy
-    echo -e "终端代理已关闭。"
-}
+#function proxy_off(){
+#    unset http_proxy https_proxy
+#    echo -e "终端代理已关闭。"
+#}
 
 for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE; do
 	eval _$color='%{$terminfo[bold]$fg[${(L)color}]%}'
@@ -253,14 +251,6 @@ autoload run-help
 alias top10='print -l  ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
 #}}}
 
-#路径别名 {{{
-#进入相应的路径时只要 cd ~xxx
-#hash -d A="/media/ayu/dearest"
-#hash -d H="/media/data/backup/ayu"
-#hash -d E="/etc/"
-#hash -d D="/home/ayumi/Documents"
-#}}}
-
 ##for Emacs {{{
 #在 Emacs终端 中使用 Zsh 的一些设置 不推荐在 Emacs 中使用它
 #if [[ "$TERM" == "dumb" ]]; then
@@ -338,5 +328,3 @@ check-cmd-backward-delete-char() { zle .backward-delete-char && recolor-cmd }
 
 zle -N self-insert check-cmd-self-insert
 zle -N backward-delete-char check-cmd-backward-delete-char
-export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
-export LD_LIBRARY_PATH=/usr/local/lib/:/usr/local/lib64:$LD_LIBRARY_PATH
