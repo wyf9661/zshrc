@@ -1,4 +1,5 @@
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh/plugins/zsh-fzf-plugin/fzf.plugin.zsh
 
 #color{{{
 autoload colors && colors
@@ -9,41 +10,66 @@ autoload colors && colors
 #alias rm='rm -i'
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
-alias yay='paru'
 
 #终端代理
-#function proxy_on() {
-#    export http_proxy=http://127.0.0.1:7890
-#    export https_proxy=$http_proxy
-#    echo -e "终端代理已开启。"
-#}
+function proxy_on() {
+    export http_proxy=http://10.13.42.11:7890
+    export https_proxy=$http_proxy
+    echo -e "终端代理已开启。"
+}
 
-#function proxy_off(){
-#    unset http_proxy https_proxy
-#    echo -e "终端代理已关闭。"
-#}
+function proxy_off(){
+    unset http_proxy https_proxy
+    echo -e "终端代理已关闭。"
+}
+#}}}
 
+# 定义颜色变量
 for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE; do
 	eval _$color='%{$terminfo[bold]$fg[${(L)color}]%}'
 	eval $color='%{$fg[${(L)color}]%}'
 	(( count = $count + 1 ))
 done
 FINISH="%{$terminfo[sgr0]%}"
-#}}}
 
-#命令提示符
-#RPROMPT=$(echo "$RED%D %T$FINISH")
-PROMPT=$(echo "$CYAN%n@$MAGENTA%M:$GREEN%1~$_BLUE>$FINISH ")
+# 获取当前 Git 分支的函数
+git_branch() {
+    # 检测是否在 Git 仓库中
+    git rev-parse --is-inside-work-tree &>/dev/null || return
+    # 获取当前分支名称
+    echo "%{$fg[yellow]%}(%{$fg[green]%}$(git rev-parse --abbrev-ref HEAD)%{$fg[yellow]%})%{$fg[default]%}"
+}
 
-#PROMPT=$(echo "$BLUE%M$GREEN%/
-#$CYAN%n@$BLUE%M:$GREEN%/$_YELLOW>>>$FINISH ")
+# 动态更新命令提示符
+function update_prompt() {
+    PROMPT="$CYAN%n@$MAGENTA%M:$GREEN%1~$(git_branch)$YELLOW>$FINISH "
+}
+
 #标题栏、任务栏样式{{{
-case $TERM in (*xterm*|*rxvt*|(dt|k|E)term)
-	precmd () { print -Pn "\e]0;%n@%M//%/\a" }
-	preexec () { print -Pn "\e]0;%n@%M//%/\ $1\a" }
-	;;
+# 设置终端标题的函数
+case $TERM in
+    (*xterm*|*rxvt*|(dt|k|E)term)
+        # 更新终端标题（命令执行前）
+        preexec() {
+            print -Pn "\e]0;%n@%M//%/\ $1\a"
+        }
+        # 更新终端标题（命令执行后）
+        precmd() {
+            print -Pn "\e]0;%n@%M//%/\a"
+            update_prompt  # 更新命令提示符
+        }
+        ;;
+    (*)
+        # 如果终端类型不匹配，仅更新命令提示符
+        precmd() {
+            update_prompt
+        }
+        ;;
 esac
 #}}}
+
+# 初始化提示符
+update_prompt
 
 #编辑器
 export EDITOR=vim
@@ -116,7 +142,7 @@ setopt AUTO_CD
 
 #扩展路径
 #/v/c/p/p => /var/cache/pacman/pkg
-setopt complete_in_word
+#setopt complete_in_word
 
 #禁用 core dumps
 limit coredumpsize 0
